@@ -20,15 +20,28 @@
  * if advised of the possibility of such damage.
  */
 
-#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
 
 int
 main (int   argc,
       char**argv)
 {
-  guint16  port;
-  GError * error = NULL;
-  gchar  * command;
+  DBusServer* server;
+  GMainLoop * loop;
+  DBusError   derror;
+  guint16     port;
+  GError    * error = NULL;
+  gchar     * command;
+
+  dbus_error_init (&derror);
+  server = dbus_server_listen("tcp:bind=*", &derror);
+  if (dbus_error_is_set (&derror))
+    {
+      g_warning ("error setting up peer-to-peer server: %s",
+                 derror.message);
+      dbus_error_free (&derror);
+      return 1;
+    }
 
   command = g_strdup_printf ("./client %s %d",
                              "localhost",
@@ -38,14 +51,25 @@ main (int   argc,
       g_warning ("error spawning child: %s",
                  error->message);
       g_clear_error (&error);
+      return 1;
     }
   if (!g_spawn_command_line_async (command, &error))
     {
       g_warning ("error spawning child: %s",
                  error->message);
       g_clear_error (&error);
+      return 1;
     }
   g_free (command);
+
+  dbus_server_setup_with_g_main (server, NULL);
+
+  loop = g_main_loop_new (NULL, FALSE);
+  g_idle_add ((GSourceFunc)g_main_loop_quit, loop);
+  g_main_loop_run (loop);
+  g_main_loop_unref (loop);
+
+  dbus_server_unref (server);
 
   return 0;
 }
