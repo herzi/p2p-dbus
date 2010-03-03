@@ -1,0 +1,8 @@
+<node name="/">
+	<interface name="eu.herzi.P2PObject">
+		<method name="Echo">
+			<arg type="s" direction="in"/>
+			<arg type="s" direction="out"/>
+		</method>
+	</interface>
+</node>

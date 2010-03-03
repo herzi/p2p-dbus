@@ -1,2 +1,4 @@
+bind.h
 client
+glue.h
 server
