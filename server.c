@@ -33,12 +33,17 @@ main (int   argc,
   command = g_strdup_printf ("./client %s %d",
                              "localhost",
                              port);
-
   if (!g_spawn_command_line_async (command, &error))
     {
       g_warning ("error spawning child: %s",
                  error->message);
-      g_error_free (error);
+      g_clear_error (&error);
+    }
+  if (!g_spawn_command_line_async (command, &error))
+    {
+      g_warning ("error spawning child: %s",
+                 error->message);
+      g_clear_error (&error);
     }
   g_free (command);
 
