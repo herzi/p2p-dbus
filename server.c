@@ -34,10 +34,6 @@ static gboolean p2p_object_echo     (P2PObject* self,
 
 #include "glue.h"
 
-/* stolen from dbus-glib */
-#define DBUS_G_CONNECTION_FROM_CONNECTION(x)     ((DBusGConnection*) _DBUS_POINTER_SHIFT(x))
-#define _DBUS_POINTER_SHIFT(p)                   ((void*) (((char*)p) + sizeof (void*)))
-
 static void
 new_connection_cb (DBusServer    * server,
                    DBusConnection* connection,
@@ -58,7 +54,7 @@ new_connection_cb (DBusServer    * server,
   dbus_connection_setup_with_g_main (connection, NULL);
 
   object = g_object_new (p2p_object_get_type (), NULL);
-  dbus_g_connection_register_g_object (DBUS_G_CONNECTION_FROM_CONNECTION (connection),
+  dbus_g_connection_register_g_object (dbus_connection_get_g_connection (connection),
                                        "/", object);
   dbus_connection_set_data (connection, slot,
                             object, g_object_unref);
